@@ -1,0 +1,26 @@
+{
+  "name": "vue-api-generator",
+  "version": "0.1.0",
+  "description": "Vue Inner API plugin generator",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hugodecasta/vue-api-generator.git"
+  },
+  "keywords": [
+    "Vue",
+    "API",
+    "Plugin",
+    "Generator"
+  ],
+  "author": "Hugo Castaneda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hugodecasta/vue-api-generator/issues"
+  },
+  "homepage": "https://github.com/hugodecasta/vue-api-generator#readme"
+}

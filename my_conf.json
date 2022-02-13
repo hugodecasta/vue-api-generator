@@ -1,0 +1,22 @@
+{
+    "vue_src_directory": "./src",
+    "apis": {
+        "": {
+            "host": "api/v3",
+            "endpoints": {
+                "get_companies": {
+                    "url": "",
+                    "method": "GET",
+                    "credentials": {
+                        "header_type": "custom",
+                        "token_type": "cookie",
+                        "options": {
+                            "header": "x-my-app-token",
+                            "cookie_key": "x-my-app-token"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

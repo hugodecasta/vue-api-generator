@@ -72,8 +72,26 @@ async function warn_and_proceed() {
     if (!proceed) process.exit(1)
 }
 
+function arg_find(flag) {
+    return process.argv.filter(arg => arg.includes(flag)).pop()
+}
+
+function arg_exists(flag) {
+    return !!arg_find(flag)
+}
+
+function arg_value(flag) {
+    return arg_find(flag)?.split('=')[1]
+}
+
+function arg_is_true(flag) {
+    const value = arg_value(flag)
+    return value === undefined ? value : value == ('true')
+}
+
 module.exports = {
     create_yes_no_question, create_choice, create_question,
     warning, info, success,
-    warn_and_proceed
+    warn_and_proceed,
+    arg_find, arg_exists, arg_value, arg_is_true
 }

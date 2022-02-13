@@ -123,10 +123,10 @@ A root api can be configured to use endpoints has well as sub apis.
 
 #### Documentation
 
-`npm exec vue-api-generator [--config-path="<JSON configuration file path>"] [--credentials-path="<JSON configuration file path>"]`
+`npm exec vue-api-generator [--config-path="<JSON configuration file path>"] [--creds-path="<JSON configuration file path>"]`
 
  - **--config-path** to specify the api configuration file (default is "./configuration.json")
- - **--credentials-path** to specify a credentials file path (if not set, no credentials are added to the api)
+ - **--creds-path** to specify a credentials file path (if not set, no credentials are added to the api)
 
 #### Examples
 
@@ -134,9 +134,9 @@ A root api can be configured to use endpoints has well as sub apis.
 
 `npm exec vue-api-generator --config-path="my_api_config.json"`
 
-`npm exec vue-api-generator --credentials-path="client_opened_credentials.json"`
+`npm exec vue-api-generator --creds-path="client_opened_credentials.json"`
 
-`npm exec vue-api-generator --config-path="my_api_config.json" --credentials-path="my_creds.json"`
+`npm exec vue-api-generator --config-path="my_api_config.json" --creds-path="my_creds.json"`
 
 ### JS
 

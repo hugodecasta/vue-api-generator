@@ -8,13 +8,15 @@ require('colors')
 const home_dir = process.cwd()
 
 // ---- configuration file
-const configuration_path = `${home_dir}/${process.argv[2] ?? 'configuration.json'}`
+const configuration_arg = inq.arg_value('--config-path')
+const configuration_path = `${home_dir}/${configuration_arg ?? 'configuration.json'}`
 const configuration_file = fs.readFileSync(configuration_path)
 const configuration = JSON.parse(configuration_file)
 
 // ---- credential file
-const credentials_path = process.argv[3] ? `${home_dir}/${process.argv[3]}` : null
-const credentials = credentials_path ? JSON.parse(fs.readFileSync(credentials_path)) : 'null'
+const credentials_arg = inq.arg_value('--creds-path')
+const credentials_path = credentials_arg ? `${home_dir}/${credentials_arg}` : null
+const credentials = credentials_path ? fs.readFileSync(credentials_path, 'utf8') : 'null'
 
 // ---- templates
 const template_path = `${__dirname}/templates`

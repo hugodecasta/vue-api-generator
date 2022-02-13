@@ -33,6 +33,10 @@ function merge_replace_data(replacers) {
     }, {})
 }
 
+function merge_texts(texts) {
+    return merge_replace_data(texts.map(t => ({ t }))).t
+}
+
 function make_url() {
     return Array.from(arguments).filter(e => e != null).join('/').replace(/\/\//g, '/').replace(':/', '://')
 }
@@ -71,7 +75,6 @@ async function generate() {
     function handle_credentials(credentials) {
         if (!credentials) return 'null'
         const { header_type, token_type, options } = credentials
-        console.log(header_type)
         const header = {
             custom: () => options.header,
             Bearer: () => 'Authorization',
@@ -81,7 +84,7 @@ async function generate() {
         }[header_type] ?? (() => ''))()
         const token = ({
             cookie: () => `this.__get_cookies("${options.cookie_key}")`,
-            absolute: () => `this.credentials["${options.token}"]`
+            absolute: () => `this.credentials["${options.cred_key}"]`
         }[token_type] ?? (() => ''))()
         return `{ "${header}": ${pre_token}${token} }`
     }
@@ -90,7 +93,7 @@ async function generate() {
         const args = args_from_url(url).concat(data_needed ? ['data'] : []).join(', ')
         const data = data_needed ? 'data' : 'null'
         const endpoint = ('"' + url.replace(/:(.*?)(\/|$)/g, (_, g, ender) => `" + ${g} + "${ender}`) + '"')
-            .replace(' + ""', '')
+            .replace(' + ""', '').replace('"" + ', '')
         const text_data = {
             api_name,
             name,
@@ -106,7 +109,7 @@ async function generate() {
 
     function handle_endpoints(api_name, endpoints) {
         const ep_replacers = Object.entries(endpoints).map(([name, config]) => handle_endpoint(api_name, { name, ...config }))
-        return merge_replace_data(ep_replacers.map(ep => ({ ep }))).ep
+        return merge_texts(ep_replacers)
     }
 
     function handle_api(api_config, from_api = null) {
@@ -114,15 +117,13 @@ async function generate() {
         const name = [from_api?.name, given_name].filter(e => e).join('_')
         const host = make_url(from_api?.host, given_host)
 
-        const has_endpoints = Object.keys(endpoints).length > 0
+        const has_endpoints = endpoints && Object.keys(endpoints).length > 0
 
         let ret = { callers: '', externals: '' }
 
         // -- handeling sub apis
-        if (apis) {
-            const sub_apis_ret = handle_apis(apis, api_config)
-            ret = merge_replace_data([ret, sub_apis_ret])
-        }
+        const sub_apis_ret = apis ? handle_apis(apis, api_config) : { callers: '', externals: '' }
+        ret = merge_replace_data([ret, { callers: sub_apis_ret.callers }])
 
         // -- making callers
         const caller_data = { host, name }
@@ -130,9 +131,9 @@ async function generate() {
         ret = merge_replace_data([ret, { callers: caller_text }])
 
         // -- making endpoints
-        const endpoints_text = handle_endpoints(name, endpoints) ?? ''
-        const api_data = { name, endpoints: endpoints_text }
-        const api_text = has_endpoints ? name ? replacer(api_data, templates.api) : endpoints_text : ''
+        const endpoints_text = has_endpoints ? handle_endpoints(name, endpoints) ?? '' : ''
+        const api_data = { name, endpoints: merge_texts([endpoints_text, sub_apis_ret.externals]) }
+        const api_text = name ? replacer(api_data, from_api ? templates.api_sub : templates.api) : endpoints_text
         ret = merge_replace_data([ret, { externals: api_text }])
 
         return ret
@@ -150,6 +151,8 @@ async function generate() {
     // ---- save api text file
     const api_text_file = replacer(api_replacer_data, templates.main)
     fs.writeFileSync(generation_path, api_text_file)
+
+    /// TODO: UPDATE MAIN !!
 
 }
 

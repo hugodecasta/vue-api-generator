@@ -1,10 +1,11 @@
+import fs from 'fs'
 import Vue from 'Vue'
 
 // ----------------------------------------------------- MAIN API CLASS
 
 class APIS {
 
-    constructor(credentials) {
+    constructor(credentials = {}) {
         this.credentials = credentials
     }
 
@@ -14,7 +15,7 @@ class APIS {
         const apis = this
         vue.mixin({
             beforeCreate() {
-                this.$apis = apis
+                this.$api = apis
             },
         })
     }
@@ -34,5 +35,11 @@ class APIS {
 
 // ----------------------------------------------------- VUE INSTALL
 
-const apis = new APIS()
+const credentials_path = process.env.CREDENTIAL_PATH
+const credentials = JSON.parse(credentials_path ?
+    fs.readFileSync(credentials_path)
+    :
+    '{}'
+)
+const apis = new APIS(credentials)
 Vue.use(apis)

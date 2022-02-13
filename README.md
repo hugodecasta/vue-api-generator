@@ -25,7 +25,7 @@ By default, the configuration file will be picked from the working directory fil
         - **endpoints?** (*objects* all endpoints, opional)
             - ep_url_pattern (*string*) → (*object*)
                 - **url** (*string* uses express pattern)
-                - **url** (*method* REST method)
+                - **method?** (*method* REST method, default is `GET`, optional)
                 - **credentials?** (*object* credential to use)
                     - **header_type** (*string* see header types)
                     - **token_type** (*string* see token types)

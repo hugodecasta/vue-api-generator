@@ -6,7 +6,8 @@ const is_git_dirty = require('is-git-dirty')
 require('colors')
 
 // ---- configuration file
-const configuration_path = `${__dirname}/${process.argv[2] ?? 'configuration.json'}`
+const home_dir = process.cwd()
+const configuration_path = `${home_dir}/${process.argv[2] ?? 'configuration.json'}`
 const configuration_file = fs.readFileSync(configuration_path)
 const configuration = JSON.parse(configuration_file)
 
@@ -49,7 +50,7 @@ function args_from_url(url) {
 // ---- execution data
 async function generate() {
 
-    const src_path = `${__dirname}/${configuration.vue_src_directory}`
+    const src_path = `${home_dir}/${configuration.vue_src_directory}`
 
     // ---- check dirtyness
     const is_dirty = is_git_dirty(src_path)
@@ -89,7 +90,7 @@ async function generate() {
         return `{ "${header}": ${pre_token}${token} }`
     }
     function handle_endpoint(api_name, endpoint_config) {
-        const { name, url, method, credentials, data_needed } = endpoint_config
+        const { name, url, method = 'GET', credentials, data_needed } = endpoint_config
         const args = args_from_url(url).concat(data_needed ? ['data'] : []).join(', ')
         const data = data_needed ? 'data' : 'null'
         const endpoint = ('"' + url.replace(/:(.*?)(\/|$)/g, (_, g, ender) => `" + ${g} + "${ender}`) + '"')

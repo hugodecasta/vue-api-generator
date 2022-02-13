@@ -14,7 +14,7 @@ class APIS {
         const apis = this
         Vue.mixin({
             beforeCreate() {
-                this.$api = apis
+                this.$/*----name----*/ = apis
             },
         })
     }

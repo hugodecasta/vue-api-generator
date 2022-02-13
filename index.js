@@ -5,23 +5,6 @@ const inq = require('./inq_utils')
 const is_git_dirty = require('is-git-dirty')
 require('colors')
 
-const home_dir = process.cwd()
-
-// ---- API name
-const api_name = (inq.arg_value('--api-name') ?? 'api').replace('.js', '')
-const api_filename = `${api_name}.js`
-
-// ---- configuration file
-const configuration_arg = inq.arg_value('--config-path')
-const configuration_path = `${home_dir}/${configuration_arg ?? 'configuration.json'}`
-const configuration_file = fs.readFileSync(configuration_path)
-const configuration = JSON.parse(configuration_file)
-
-// ---- credential file
-const credentials_arg = inq.arg_value('--creds-path')
-const credentials_path = credentials_arg ? `${home_dir}/${credentials_arg}` : null
-const credentials = credentials_path ? fs.readFileSync(credentials_path, 'utf8') : 'null'
-
 // ---- templates
 const template_path = `${__dirname}/templates`
 const templates = Object.fromEntries(fs.readdirSync(template_path)
@@ -61,11 +44,28 @@ function args_from_url(url) {
 // ---- execution data
 async function generate() {
 
-    const src_path = `${home_dir}/${configuration.vue_src_directory}`
+    const home_dir = process.cwd()
+
+    // ---- configuration file
+    const configuration_arg = process.argv[2]
+    const configuration_path = `${home_dir}/${configuration_arg ?? 'configuration.json'}`
+    const configuration_file = fs.readFileSync(configuration_path)
+    const configuration = JSON.parse(configuration_file)
+
+    // ---- API name
+    const { name: api_name = "api" } = configuration
+    const api_filename = `${api_name}.js`
 
     inq.info(`Generating API ${api_name}`)
 
+    // ---- credential file
+    const { credentials_path: credentials_arg = null } = configuration
+    const credentials_path = credentials_arg ? `${home_dir}/${credentials_arg}` : null
+    const credentials = credentials_path ? fs.readFileSync(credentials_path, 'utf8') : 'null'
+
     // ---- check dirtyness
+    const { vue_src_directory: src_arg = ".src" } = configuration
+    const src_path = `${home_dir}/${src_arg}`
     const is_dirty = is_git_dirty(src_path)
     if (is_dirty)
         await inq.warn_and_proceed(
@@ -162,7 +162,7 @@ async function generate() {
 
     // ---- base data
     const { apis } = configuration
-    const api_replacer_data = { ...handle_apis(apis), credentials }
+    const api_replacer_data = { name: api_name, ...handle_apis(apis), credentials }
     if (!credentials_path) inq.info('no credentials detected')
 
     // ---- save api text file

@@ -1,9 +1,13 @@
-# vue-api-generator
+# vue-api-generator 
 Vue Inner API plugin generator
  
 ## Install
 
-`npm i vue-api-generator`
+#### install local
+`npm i vue-api-generator --save-dev`
+
+#### install global
+`npm i -g vue-api-generator`
  
 ## Generating
 
@@ -17,7 +21,9 @@ By default, the configuration file will be picked from the working directory fil
 
 ### Specification
 
-- **vue_src_directory** (*string* vue source directory path)
+- **name?** (*string* api name, default is `api`, optional)
+- **credentials_path?** (*string* credential json file path, optional)
+- **vue_src_directory?** (*string* vue source directory path, default is `./src`, optional)
 - **apis** (*object* apis config)
     - name (*string* api name, us `""` for direct access) → (*object*)
         - **host** (*string* api main host)
@@ -33,7 +39,9 @@ By default, the configuration file will be picked from the working directory fil
 
 ### Credentials
 
-The credential object uses a *credential options* key data in order to setup the credential headers for a specific endpoint.
+The main credential file containing all credentials data must be specified in the root key `credentials_path`. Leave this key blank or unexistent if you have no credentials to be imprinted inside the api plugin.
+
+The credential endpoint object uses a *credential options* key data in order to setup the credential headers for a specific endpoint.
 
 This options object's content depends on the credential header and token types.
 
@@ -45,7 +53,7 @@ This options object's content depends on the credential header and token types.
 #### token types
 
  - **absolute** creates an Authorization header `{ <cred_header>: this.credentials["<options.cred_key>"] }`\
- You will have to provide a credential file containing the specified credential key `cred_key` while generating the plugin api by specifying the path in the generation command. Bear in mind that these credentials will be imprinted inside the client api thus being accessible by an client. Only client side api token must be delivered through the credentials file.
+ You will have to provide a credential file path containing the specified credential key `cred_key` in the configuration file. Bear in mind that these credentials will be imprinted inside the client api thus being accessible by an client. Only client side api tokens must be delivered through the credentials file.
  - **cookie** uses the client cookie to setup the token `{ <cred_header>: this.__get_cookie("<options.cookie>") }`
 
 ### Sub Apis
@@ -60,24 +68,26 @@ A root api can be configured to use endpoints has well as sub apis.
 
 ```json
 {
-    "vue_src_directory": "./src", 
-    "apis": { 
-        "accounts": { 
+    "name": "my_api",
+    "credentials_path": "./my_creds.json",
+    "vue_src_directory": "./src",
+    "apis": {
+        "accounts": {
             "host": "/api",
             "endpoints": {
-                "list":{
+                "list": {
                     "url": "",
-                    "method": "GET",
+                    "method": "GET"
                 },
-                "create":{
+                "create": {
                     "url": "/:name",
                     "method": "POST",
                     "data_needed": true
-                },
+                }
             }
         },
         "facebook": {
-            "host":"https://api.facebook.com/api",
+            "host": "https://api.facebook.com/api",
             "apis": {
                 "people": {
                     "host": "people/v1",
@@ -89,7 +99,7 @@ A root api can be configured to use endpoints has well as sub apis.
                                 "header_type": "Bearer",
                                 "token_type": "absolute",
                                 "options": {
-                                    "token": "facebook"
+                                    "cred_key": "facebook"
                                 }
                             }
                         }
@@ -105,7 +115,7 @@ A root api can be configured to use endpoints has well as sub apis.
                                 "header_type": "Bearer",
                                 "token_type": "absolute",
                                 "options": {
-                                    "token": "facebook"
+                                    "cred_key": "facebook"
                                 }
                             }
                         }
@@ -123,23 +133,19 @@ A root api can be configured to use endpoints has well as sub apis.
 
 #### Documentation
 
-`npm exec vue-api-generator[ --config-path="<JSON configuration file path>"][ --creds-path="<JSON configuration file path>"][ --api-name="<api plugin name>"]`
+`npm exec vue-api-generator[ <JSON configuration file path>]`
 
- - **--config-path** to specify the api configuration file (default is "./configuration.json")
- - **--creds-path** to specify a credentials file path (if not set, no credentials are added to the api)
- - **--api-name** to specify the plugin's name (default is "api")
+ - **JSON configuration file path** to specify the api configuration file (default is "./configuration.json")
 
 #### Examples
 
 `npm exec vue-api-generator`
 
-`npm exec vue-api-generator --config-path="my_api_config.json"`
+`npm exec vue-api-generator "my_api_config.json"`
 
-`npm exec vue-api-generator --api-name="inner_api"`
+`npm exec vue-api-generator "./configs/my_api_config.json"`
 
-`npm exec vue-api-generator --creds-path="client_opened_credentials.json"`
-
-`npm exec vue-api-generator --config-path="my_api_config.json" --creds-path="my_creds.json"`
+`npm exec vue-api-generator "/home/devs/my_project/my_api_config.json"`
 
 ### JS
 
@@ -150,27 +156,27 @@ methods: {
 
     // ---- api v3 usage
     async get_company_list() {
-        return await this.$api.get_companies()
+        return await this.$my_api.get_companies()
     },
 
     async create_company(name, id, nic) {
         const company = {id, name, nic}
-        await this.$api.create_company(company)
+        await this.$my_api.create_company(company)
         this.success_text = `company ${name} created !`
     },
     
     async remove_company(id) {
-        const rm_company = await this.$api.remove_company(compidany)
+        const rm_company = await this.$my_api.remove_company(compidany)
         this.success_text = `company ${rm_company.name} removed !`
     },
 
     // ---- api v0 usage
     async update_data_list() {
-        const list = await this.$api.old_api.list()
+        const list = await this.$my_api.old_api.list()
         this.$set(this, 'accounts', list)
     },
     async create_account(name, account_data={}) {
-        const new_account = await this.$api.old_api.create(name, account_data)
+        const new_account = await this.$my_api.old_api.create(name, account_data)
         console.log('new account', name, 'created', new_account)
         this.update_data_list()
     },
@@ -179,7 +185,7 @@ methods: {
     async connect_people(people1, people2) {
         const { id: id1 } = people1
         const { id: id2 } = people2
-        const created_link = await this.$api.facebook.connection.connect(id1, id2)
+        const created_link = await this.$my_api.facebook.connection.connect(id1, id2)
     }
 }
 

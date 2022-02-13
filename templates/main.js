@@ -1,4 +1,3 @@
-import fs from 'fs'
 import Vue from 'vue'
 
 // ----------------------------------------------------- MAIN API CLASS

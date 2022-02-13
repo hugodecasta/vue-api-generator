@@ -66,9 +66,19 @@ function success() {
     console.log('\n SUCCESS '.bgGreen.white, ...Array.from(arguments).map(arg => (arg + '').green))
 }
 
+function error() {
+    console.log('\n ERROR '.bgRed.white, ...Array.from(arguments).map(arg => (arg + '').red))
+}
+
 async function warn_and_proceed() {
     warning(...arguments)
     const proceed = await create_yes_no_question('Still proceed ?', false)
+    if (!proceed) process.exit(1)
+}
+
+async function warn_and_override() {
+    warning(...arguments)
+    const proceed = await create_yes_no_question('Override ?', true)
     if (!proceed) process.exit(1)
 }
 
@@ -91,7 +101,7 @@ function arg_is_true(flag) {
 
 module.exports = {
     create_yes_no_question, create_choice, create_question,
-    warning, info, success,
-    warn_and_proceed,
+    warning, info, success, error,
+    warn_and_proceed, warn_and_override,
     arg_find, arg_exists, arg_value, arg_is_true
 }

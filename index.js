@@ -7,6 +7,10 @@ require('colors')
 
 const home_dir = process.cwd()
 
+// ---- API name
+const api_name = (inq.arg_value('--api-name') ?? 'api').replace('.js', '')
+const api_filename = `${api_name}.js`
+
 // ---- configuration file
 const configuration_arg = inq.arg_value('--config-path')
 const configuration_path = `${home_dir}/${configuration_arg ?? 'configuration.json'}`
@@ -59,26 +63,28 @@ async function generate() {
 
     const src_path = `${home_dir}/${configuration.vue_src_directory}`
 
+    inq.info(`Generating API ${api_name}`)
+
     // ---- check dirtyness
     const is_dirty = is_git_dirty(src_path)
-    if (is_dirty) {
+    if (is_dirty)
         await inq.warn_and_proceed(
             "There are uncommitted changes in the current repository, it's recommended to commit or stash them first.")
-    }
 
     // ---- check vue main
     const vue_main_path = `${src_path}/main.js`
     let act_on_main = fs.existsSync(vue_main_path)
-    if (!act_on_main) {
-        await inq.warn_and_proceed('vue main file is missing (you will have to manualy link the api)')
-    }
+    if (!act_on_main)
+        await inq.warn_and_proceed('vue main file is missing (you will have to manualy link the api).')
 
     // ---- check generating path
     const generation_dir = `${src_path}/plugins`
     if (!fs.existsSync(generation_dir)) {
         fs.mkdirSync(generation_dir, { recursive: true })
     }
-    const generation_path = `${generation_dir}/api.js`
+    const generation_path = `${generation_dir}/${api_filename}`
+    if (fs.existsSync(generation_path))
+        await inq.warn_and_override(`Plugin path for API ${api_name} already exist`)
 
     // ---- handlers
     function handle_credentials(credentials) {
@@ -165,10 +171,10 @@ async function generate() {
     fs.writeFileSync(generation_path, api_text_file)
 
     // ---- main adding
-    if (vue_main_path) {
+    if (act_on_main) {
         console.log('updating main.js ...')
         const main_file_text = fs.readFileSync(vue_main_path, 'utf8')
-        const main_import_text = "import './plugins/api'"
+        const main_import_text = `import './plugins/${api_filename}'`
         const api_already_imported = main_file_text.includes(main_import_text)
         if (api_already_imported) {
             inq.info('api already imported in main.js')
@@ -183,8 +189,15 @@ async function generate() {
         inq.warning('main.js not updated')
     }
 
-    inq.success('API generation done !')
+    inq.success(`API ${api_name} generated !\n`)
 
 }
 
-generate()
+async function main() {
+    try {
+        await generate()
+    } catch (e) {
+        inq.error(e.stack)
+    }
+}
+main()

@@ -1,4 +1,6 @@
 configuration.json
+credentials.json
+
 src/
 src/*
 src/*.js

@@ -45,7 +45,7 @@ This options object's content depends on the credential header and token types.
 #### token types
 
  - **absolute** creates an Authorization header `{ <cred_header>: this.credentials["<options.cred_key>"] }`\
- You will have to provide a credential file containing the specified credential key `cred_key` while generating the plugin api by specifying the `CREDENTIAL_PATH` environnement variable.
+ You will have to provide a credential file containing the specified credential key `cred_key` while generating the plugin api by specifying the path in the generation command. Bear in mind that these credentials will be imprinted inside the client api thus being accessible by an client. Only client side api token must be delivered through the credentials file.
  - **cookie** uses the client cookie to setup the token `{ <cred_header>: this.__get_cookie("<options.cookie>") }`
 
 ### Sub Apis
@@ -118,6 +118,27 @@ A root api can be configured to use endpoints has well as sub apis.
 ```
  
 ## Usage
+
+### Commands
+
+#### Documentation
+
+`npm exec vue-api-generator [--config-path="<JSON configuration file path>"] [--credentials-path="<JSON configuration file path>"]`
+
+ - **--config-path** to specify the api configuration file (default is "./configuration.json")
+ - **--credentials-path** to specify a credentials file path (if not set, no credentials are added to the api)
+
+#### Examples
+
+`npm exec vue-api-generator`
+
+`npm exec vue-api-generator --config-path="my_api_config.json"`
+
+`npm exec vue-api-generator --credentials-path="client_opened_credentials.json"`
+
+`npm exec vue-api-generator --config-path="my_api_config.json" --credentials-path="my_creds.json"`
+
+### JS
 
 Using the configuration file above, one can use the described api inside a vue component using:
 ```js

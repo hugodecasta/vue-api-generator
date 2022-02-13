@@ -55,15 +55,15 @@ function create_question(str) {
 }
 
 function warning() {
-    console.log(' WARN '.bgYellow.black, ...Array.from(arguments).map(arg => (arg + '').yellow))
+    console.log('\n WARN '.bgYellow.black, ...Array.from(arguments).map(arg => (arg + '').yellow))
 }
 
 function info() {
-    console.log(' INFO '.bgCyan.black, ...Array.from(arguments).map(arg => (arg + '').cyan))
+    console.log('\n INFO '.bgCyan.black, ...Array.from(arguments).map(arg => (arg + '').cyan))
 }
 
 function success() {
-    console.log(' SUCCESS '.bgGreen.white, ...Array.from(arguments).map(arg => (arg + '').green))
+    console.log('\n SUCCESS '.bgGreen.white, ...Array.from(arguments).map(arg => (arg + '').green))
 }
 
 async function warn_and_proceed() {

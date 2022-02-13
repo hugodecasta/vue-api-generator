@@ -5,11 +5,16 @@ const inq = require('./inq_utils')
 const is_git_dirty = require('is-git-dirty')
 require('colors')
 
-// ---- configuration file
 const home_dir = process.cwd()
+
+// ---- configuration file
 const configuration_path = `${home_dir}/${process.argv[2] ?? 'configuration.json'}`
 const configuration_file = fs.readFileSync(configuration_path)
 const configuration = JSON.parse(configuration_file)
+
+// ---- credential file
+const credentials_path = process.argv[3] ? `${home_dir}/${process.argv[3]}` : null
+const credentials = credentials_path ? JSON.parse(fs.readFileSync(credentials_path)) : 'null'
 
 // ---- templates
 const template_path = `${__dirname}/templates`
@@ -149,14 +154,11 @@ async function generate() {
 
     // ---- base data
     const { apis } = configuration
-    const api_replacer_data = handle_apis(apis)
-
-    // ---- credentials
-    const credential_path = process.env.CREDENTIAL_PATH
-    const credentials_str = credential_path ? fs.readFileSync(credential_path, 'utf8') : 'null'
-    api_replacer_data.credentials = credentials_str
+    const api_replacer_data = { ...handle_apis(apis), credentials }
+    if (!credentials_path) inq.info('no credentials detected')
 
     // ---- save api text file
+    console.log('generating API text...')
     const api_text_file = replacer(api_replacer_data, templates.main)
     fs.writeFileSync(generation_path, api_text_file)
 

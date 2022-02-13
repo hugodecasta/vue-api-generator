@@ -1,4 +1,7 @@
 configuration.json
+src/
+src/*
+src/*.js
 
 # Logs
 logs

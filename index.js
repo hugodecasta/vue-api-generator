@@ -54,14 +54,15 @@ async function generate() {
 
     // ---- check dirtyness
     const is_dirty = is_git_dirty(src_path)
-    // if (is_dirty) {
-    //     await inq.warn_and_proceed(
-    //         "There are uncommitted changes in the current repository, it's recommended to commit or stash them first.")
-    // }
+    if (is_dirty) {
+        await inq.warn_and_proceed(
+            "There are uncommitted changes in the current repository, it's recommended to commit or stash them first.")
+    }
 
     // ---- check vue main
-    const vue_main = `${src_path}/main.js`
-    if (!fs.existsSync(vue_main)) {
+    const vue_main_path = `${src_path}/main.js`
+    let act_on_main = fs.existsSync(vue_main_path)
+    if (!act_on_main) {
         await inq.warn_and_proceed('vue main file is missing (you will have to manualy link the api)')
     }
 
@@ -116,6 +117,7 @@ async function generate() {
     function handle_api(api_config, from_api = null) {
         const { name: given_name, host: given_host, endpoints, apis } = api_config
         const name = [from_api?.name, given_name].filter(e => e).join('_')
+        console.log('generating api', `"${name}"...`)
         const host = make_url(from_api?.host, given_host)
 
         const has_endpoints = endpoints && Object.keys(endpoints).length > 0
@@ -149,11 +151,35 @@ async function generate() {
     const { apis } = configuration
     const api_replacer_data = handle_apis(apis)
 
+    // ---- credentials
+    const credential_path = process.env.CREDENTIAL_PATH
+    const credentials_str = credential_path ? fs.readFileSync(credential_path, 'utf8') : 'null'
+    api_replacer_data.credentials = credentials_str
+
     // ---- save api text file
     const api_text_file = replacer(api_replacer_data, templates.main)
     fs.writeFileSync(generation_path, api_text_file)
 
-    /// TODO: UPDATE MAIN !!
+    // ---- main adding
+    if (vue_main_path) {
+        console.log('updating main.js ...')
+        const main_file_text = fs.readFileSync(vue_main_path, 'utf8')
+        const main_import_text = "import './plugins/api'"
+        const api_already_imported = main_file_text.includes(main_import_text)
+        if (api_already_imported) {
+            inq.info('api already imported in main.js')
+        } else {
+            const lines = main_file_text.split('\n')
+            const last_import_line = lines.map((l, i) => ({ l, i })).filter(({ l }) => l.includes('import')).pop().i ?? 0
+            lines.splice(last_import_line + 1, 0, main_import_text)
+            const new_main_text = lines.join('\n')
+            fs.writeFileSync(vue_main_path, new_main_text)
+        }
+    } else {
+        inq.warning('main.js not updated')
+    }
+
+    inq.success('API generation done !')
 
 }
 

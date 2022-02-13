@@ -1,6 +1,6 @@
 async __/*----name----*/_api(endpoint, method, data, headers) {
     headers = headers ?? {}
-    const options = { method, header }
+    const options = { method, headers }
     if (data) {
         headers['Content-type'] = 'application/json'
         options.body = JSON.stringify(data)

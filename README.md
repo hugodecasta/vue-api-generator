@@ -45,7 +45,7 @@ This options object's content depends on the credential header and token types.
 #### token types
 
  - **absolute** creates an Authorization header `{ <cred_header>: this.credentials["<options.cred_key>"] }`\
- You will have to provide a credential file containing the specified credential key `cred_key` while serving or building your vue app by specifying the `CREDENTIAL_PATH` environnement variable.
+ You will have to provide a credential file containing the specified credential key `cred_key` while generating the plugin api by specifying the `CREDENTIAL_PATH` environnement variable.
  - **cookie** uses the client cookie to setup the token `{ <cred_header>: this.__get_cookie("<options.cookie>") }`
 
 ### Sub Apis

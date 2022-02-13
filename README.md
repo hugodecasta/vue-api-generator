@@ -1,9 +1,9 @@
-# vue-api-pluginner
+# vue-api-generator
 Vue Inner API plugin generator
  
 ## Install
 
-`npm i vue-api-pluginner`
+`npm i vue-api-generator`
  
 ## Generating
 

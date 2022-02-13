@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/hugodecasta/vue-api-generator#readme",
   "dependencies": {
+    "colors": "^1.4.0",
     "inquirer": "^8.2.0",
     "is-git-dirty": "^2.0.1"
   }

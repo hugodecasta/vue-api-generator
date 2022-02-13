@@ -1,3 +1,5 @@
+require('colors')
+
 function create_choice(str, choice_map) {
     return new Promise((ok, err) => {
         const inquirer = require('inquirer')
@@ -52,8 +54,18 @@ function create_question(str) {
     })
 }
 
+function warning() {
+    console.log(' WARN '.bgYellow.black, ...Array.from(arguments).map(arg => (arg + '').yellow))
+}
+
+async function warn_and_proceed() {
+    warning(...arguments)
+    const proceed = await create_yes_no_question('Still proceed ?', false)
+    if (!proceed) process.exit(1)
+}
+
 module.exports = {
-    create_yes_no_question,
-    create_choice,
-    create_question,
+    create_yes_no_question, create_choice, create_question,
+    warning,
+    warn_and_proceed
 }

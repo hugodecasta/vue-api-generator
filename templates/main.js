@@ -23,16 +23,13 @@ class APIS {
     // ----------------- UTILS
 
     __get_cookie(key) {
-
+        return Object.fromEntries(document.cookie.split('; ').map(cd => cd.split('=')))[key]
     }
 
     // ----------------- INNER API CALLERS
-
-    // //// APIS
-
+    /*----callers----*/
     // ----------------- EXTERNAL CALLERS
-
-    // //// EXTERNALS
+    /*----externals----*/
 }
 
 // ----------------------------------------------------- VUE INSTALL

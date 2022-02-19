@@ -31,7 +31,10 @@ By default, the configuration file will be picked from the working directory fil
         - **endpoints?** (*objects* all endpoints, opional)
             - ep_url_pattern (*string*) → (*object*)
                 - **url** (*string* uses express pattern)
-                - **method?** (*method* REST method, default is `GET`, optional)
+                - **method?** (*string* REST method, default is `GET`, optional)
+                - **default?** (*string* default value for all url arguments)
+                - **defaults?** (*object* default values specified for each url argument, overrides the `default` value if set)
+                    - arg_name (*string*) → (*string* default value)
                 - **credentials?** (*object* credential to use)
                     - **header_type** (*string* see header types)
                     - **token_type** (*string* see token types)
@@ -63,6 +66,13 @@ When a sub api is specified using the `apis` key within an API configuration, al
 The API names will have to be called in chain `this.$api.root_api.sub_api.sub_sub_api ...`.
 
 A root api can be configured to use endpoints has well as sub apis.
+
+### Environnement Variables
+
+One can ask the api generator to imprint a given variable environnement (eather from at serve time or at build time) by specifying the varenv name preceded by to `ENV:` keyword.\
+For example, if one need to use a custome host specified by an environnement variable, the configuration looks like this `host: "https://ENV:MAIN_HOST/apis"`.
+
+Many `ENV:...` instructions can be used 
 
 ### Example
 

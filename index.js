@@ -12,11 +12,17 @@ const templates = Object.fromEntries(fs.readdirSync(template_path)
 
 // ---- text replacer
 function replacer(data, file_text) {
-    return file_text.replace(/( *)\/\*----(.*?)----\*\//gm, (_, before, data_name) => {
-        before = (before ?? '').replace(/\n/g, '')
-        const text_replacement = before + data[data_name].replace(/\n/gm, '\n' + before)
-        return text_replacement
-    })
+    return file_text
+        .replace(/( *)\/\*----(.*?)----\*\//gm, (_, before, data_name) => {
+            before = (before ?? '').replace(/\n/g, '')
+            const text_replacement = before + data[data_name].replace(/\n/gm, '\n' + before)
+            return text_replacement
+        })
+        .replace(/ENV:(\w*)/g, (_, group) => {
+            const env_str = `process.env.${group}`
+            return `" + ${env_str} + "`
+        })
+        .replace(/"" ?\+ ?/g, '').replace(/ ?\+ ?""/g, '')
 }
 
 // ---- replacers merger
@@ -64,7 +70,7 @@ async function generate() {
     const credentials = credentials_path ? fs.readFileSync(credentials_path, 'utf8') : 'null'
 
     // ---- check dirtyness
-    const { vue_src_directory: src_arg = ".src" } = configuration
+    const { vue_src_directory: src_arg = "./src" } = configuration
     const src_path = `${home_dir}/${src_arg}`
     const is_dirty = is_git_dirty(src_path)
     if (is_dirty)
@@ -104,11 +110,13 @@ async function generate() {
         return `{ "${header}": ${pre_token}${token} }`
     }
     function handle_endpoint(api_name, endpoint_config) {
-        const { name, url, method = 'GET', credentials, data_needed } = endpoint_config
-        const args = args_from_url(url).concat(data_needed ? ['data'] : []).join(', ')
+        const { name, url, method = 'GET', credentials, data_needed, default: def_arg, defaults = {} } = endpoint_config
+        const args = args_from_url(url)
+            .map(arg =>
+                def_arg !== undefined || arg in defaults ? `${arg} = ${JSON.stringify(defaults[arg] ?? def_arg)}` : arg)
+            .concat(data_needed ? ['data = null'] : []).join(', ')
         const data = data_needed ? 'data' : 'null'
         const endpoint = ('"' + url.replace(/:(.*?)(\/|$)/g, (_, g, ender) => `" + ${g} + "${ender}`) + '"')
-            .replace(' + ""', '').replace('"" + ', '')
         const text_data = {
             api_name,
             name,

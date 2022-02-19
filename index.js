@@ -116,7 +116,7 @@ async function generate() {
                 def_arg !== undefined || arg in defaults ? `${arg} = ${JSON.stringify(defaults[arg] ?? def_arg)}` : arg)
             .concat(data_needed ? ['data = null'] : []).join(', ')
         const data = data_needed ? 'data' : 'null'
-        const endpoint = ('"' + url.replace(/:(.*?)(\/|$)/g, (_, g, ender) => `" + ${g} + "${ender}`) + '"')
+        const endpoint = ('"' + url.replace(/:(\w*)/g, (_, g, ender) => `" + ${g} + "${ender}`) + '"')
         const text_data = {
             api_name,
             name,

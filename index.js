@@ -117,7 +117,6 @@ async function generate() {
             .concat(data_needed ? ['data = null'] : []).join(', ')
         const data = data_needed ? 'data' : 'null'
         const endpoint = ('"' + url.replace(/:(\w*)/g, (_, g, ender) => `" + ${g} + "`) + '"')
-        console.log(endpoint)
         const text_data = {
             api_name,
             name,

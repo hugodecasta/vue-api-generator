@@ -72,7 +72,9 @@ A root api can be configured to use endpoints has well as sub apis.
 One can ask the api generator to imprint a given variable environnement (eather from at serve time or at build time) by specifying the varenv name preceded by to `ENV:` keyword.\
 For example, if one need to use a custome host specified by an environnement variable, the configuration looks like this `host: "https://ENV:MAIN_HOST/apis"`.
 
-Many `ENV:...` instructions can be used 
+Many `ENV:...` instructions can be used in a single string.
+
+The `ENV:...` instruction can be use in any given string (except in keys from the configuration file).
 
 ### Example
 

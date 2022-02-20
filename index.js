@@ -40,7 +40,7 @@ function merge_texts(texts) {
 }
 
 function make_url() {
-    return Array.from(arguments).join('", "')
+    return Array.from(arguments).filter(e => e !== undefined).join('", "')
     return Array.from(arguments).filter(e => e != null).join('/').replace(/\/\//g, '/').replace(':/', '://')
 }
 
@@ -144,7 +144,8 @@ async function generate() {
         const { name: given_name, host: given_host, endpoints, apis } = api_config
         const name = [from_api?.name, given_name].filter(e => e).join('_')
         console.log('generating api', `"${name}"...`)
-        const host = make_url(from_api?.host, given_host)
+        const host = make_url(from_api?.full_host, given_host)
+        api_config.full_host = host
 
         const has_endpoints = endpoints && Object.keys(endpoints).length > 0
 

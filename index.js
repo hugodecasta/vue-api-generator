@@ -23,6 +23,7 @@ function replacer(data, file_text) {
             return `" + ${env_str} + "`
         })
         .replace(/"" ?\+ ?/g, '').replace(/ ?\+ ?""/g, '')
+        .replace(/, ""/g, '')
 }
 
 // ---- replacers merger
@@ -39,6 +40,7 @@ function merge_texts(texts) {
 }
 
 function make_url() {
+    return Array.from(arguments).join('", "')
     return Array.from(arguments).filter(e => e != null).join('/').replace(/\/\//g, '/').replace(':/', '://')
 }
 

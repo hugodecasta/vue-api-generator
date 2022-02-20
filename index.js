@@ -115,13 +115,14 @@ async function generate() {
         return `{ "${header}": ${pre_token}${token} }`
     }
     function handle_endpoint(api_name, endpoint_config) {
-        const { name, url, method = 'GET', credentials, data_needed, default: def_arg, defaults = {} } = endpoint_config
+        const { name, url, method = 'GET', credentials, data_needed, default: def_arg, defaults = {}, data_format = 'json' } = endpoint_config
         const args = args_from_url(url)
             .map(arg =>
                 def_arg !== undefined || arg in defaults ? `${arg} = ${JSON.stringify(defaults[arg] ?? def_arg)}` : arg)
             .concat(data_needed ? ['data = null'] : []).join(', ')
         const data = data_needed ? 'data' : 'null'
         const endpoint = ('"' + url.replace(/:(\w*)/g, (_, g, ender) => `" + ${g} + "`) + '"')
+        const format = JSON.stringify(data_needed ? data_format : null)
         const text_data = {
             api_name,
             name,
@@ -129,6 +130,7 @@ async function generate() {
             endpoint,
             method,
             data,
+            format,
             headers: handle_credentials(credentials)
         }
         const endpoint_text = replacer(text_data, api_name ? templates.endpoint : templates.endpoint_root)

@@ -1,8 +1,11 @@
-async __/*----name----*/_api(endpoint, method, data, headers) {
+async __/*----name----*/_api(endpoint, method, data, headers, data_format = 'json') {
     headers = headers ?? {}
     const options = { method, headers }
     if (data) {
-        headers['Content-type'] = 'application/json'
+        headers['Content-type'] = {
+            'json': 'application/json',
+            'text': 'text/plain'
+        }[data_format] ?? data_format
         options.body = JSON.stringify(data)
     }
     const url = ["/*----host----*/", endpoint].join('/')

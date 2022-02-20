@@ -105,7 +105,10 @@ async function generate() {
         }[header_type] ?? (() => ''))()
         const token = ({
             cookie: () => `this.__get_cookies("${options.cookie_key}")`,
-            absolute: () => `this.credentials["${options.cred_key}"]`
+            absolute: () => `this.credentials["${options.cred_key}"]`,
+            session: () => `sessionStorage.getItem("${options.cred_key}")`,
+            local: () => `localStorage.getItem("${options.cred_key}")`,
+            local_session: () => `localStorage.getItem("${options.cred_key}") ?? sessionStorage.getItem("${options.cred_key}")`,
         }[token_type] ?? (() => ''))()
         return `{ "${header}": ${pre_token}${token} }`
     }
@@ -156,7 +159,7 @@ async function generate() {
 
         // -- making endpoints
         const endpoints_text = has_endpoints ? handle_endpoints(name, endpoints) ?? '' : ''
-        const api_data = { name, endpoints: merge_texts([endpoints_text, sub_apis_ret.externals]) }
+        const api_data = { name: given_name, endpoints: merge_texts([endpoints_text, sub_apis_ret.externals]) }
         const api_text = name ? replacer(api_data, from_api ? templates.api_sub : templates.api) : endpoints_text
         ret = merge_replace_data([ret, { externals: api_text }])
 

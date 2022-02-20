@@ -110,7 +110,7 @@ async function generate() {
             absolute: () => `this.credentials["${options.cred_key}"]`,
             session: () => `sessionStorage.getItem("${options.cred_key}")`,
             local: () => `localStorage.getItem("${options.cred_key}")`,
-            local_session: () => `localStorage.getItem("${options.cred_key}") ?? sessionStorage.getItem("${options.cred_key}")`,
+            local_session: () => `(localStorage.getItem("${options.cred_key}") ?? sessionStorage.getItem("${options.cred_key}"))`,
         }[token_type] ?? (() => ''))()
         return `{ "${header}": ${pre_token}${token} }`
     }

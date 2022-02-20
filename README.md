@@ -60,7 +60,7 @@ This options object's content depends on the credential header and token types.
  - **cookie** uses the client cookie to setup the token `{ <cred_header>: this.__get_cookie("<options.cookie>") }`
  - **session** uses the client sessionStrage to setup the token `{ <cred_header>: sessionStorage("<options.cookie>") }`
  - **local** uses the client localStorage to setup the token `{ <cred_header>: localStorage("<options.cookie>") }`
- - **local_session** uses the client localStorage or sessionStorage to setup the token `{ <cred_header>: localStorage("<options.cookie>") ?? sessionStorage("<options.cookie>") }`
+ - **local_session** uses the client localStorage or sessionStorage to setup the token `{ <cred_header>: (localStorage("<options.cookie>") ?? sessionStorage("<options.cookie>")) }`
 
 ### Sub Apis
 

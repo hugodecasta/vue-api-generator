@@ -6,7 +6,7 @@ async __/*----name----*/_api(endpoint, method, data, headers, data_format = 'jso
             'json': 'application/json',
             'text': 'text/plain'
         }[data_format] ?? data_format
-        options.body = JSON.stringify(data)
+        options.body = data_format == 'json' ? JSON.stringify(data) : data
     }
     const url = ["/*----host----*/", endpoint].join('/')
     const resp = await fetch(url, options)

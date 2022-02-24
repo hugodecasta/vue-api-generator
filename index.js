@@ -50,12 +50,11 @@ function args_from_url(url) {
 }
 
 // ---- execution data
-async function generate() {
+async function generate(configuration_arg, use_command_line = false, verbose = false) {
 
     const home_dir = process.cwd()
 
     // ---- configuration file
-    const configuration_arg = process.argv[2]
     const configuration_path = `${home_dir}/${configuration_arg ?? 'configuration.json'}`
     const configuration_file = fs.readFileSync(configuration_path)
     const configuration = JSON.parse(configuration_file)
@@ -64,7 +63,7 @@ async function generate() {
     const { name: api_name = "api" } = configuration
     const api_filename = `${api_name}.js`
 
-    inq.info(`Generating API ${api_name}`)
+    if (verbose) inq.info(`Generating API ${api_name}`)
 
     // ---- credential file
     const { credentials_path: credentials_arg = null } = configuration
@@ -75,14 +74,14 @@ async function generate() {
     const { vue_src_directory: src_arg = "./src" } = configuration
     const src_path = `${home_dir}/${src_arg}`
     const is_dirty = is_git_dirty(src_path)
-    if (is_dirty)
+    if (is_dirty && use_command_line)
         await inq.warn_and_proceed(
             "There are uncommitted changes in the current repository, it's recommended to commit or stash them first.")
 
     // ---- check vue main
     const vue_main_path = `${src_path}/main.js`
     let act_on_main = fs.existsSync(vue_main_path)
-    if (!act_on_main)
+    if (!act_on_main && use_command_line)
         await inq.warn_and_proceed('vue main file is missing (you will have to manualy link the api).')
 
     // ---- check generating path
@@ -91,7 +90,7 @@ async function generate() {
         fs.mkdirSync(generation_dir, { recursive: true })
     }
     const generation_path = `${generation_dir}/${api_filename}`
-    if (fs.existsSync(generation_path))
+    if (fs.existsSync(generation_path) && use_command_line)
         await inq.warn_and_override(`Plugin path for API ${api_name} already exist`)
 
     // ---- handlers
@@ -179,7 +178,7 @@ async function generate() {
     // ---- base data
     const { apis } = configuration
     const api_replacer_data = { name: api_name, ...handle_apis(apis), credentials }
-    if (!credentials_path) inq.info('no credentials detected')
+    if (!credentials_path && verbose) inq.info('no credentials detected')
 
     // ---- save api text file
     console.log('generating API text...')
@@ -193,7 +192,7 @@ async function generate() {
         const main_import_text = `import './plugins/${api_filename}'`
         const api_already_imported = main_file_text.includes(main_import_text)
         if (api_already_imported) {
-            inq.info('api already imported in main.js')
+            if (verbose) inq.info('api already imported in main.js')
         } else {
             const lines = main_file_text.split('\n')
             const last_import_line = lines.map((l, i) => ({ l, i })).filter(({ l }) => l.includes('import')).pop().i ?? 0
@@ -202,18 +201,23 @@ async function generate() {
             fs.writeFileSync(vue_main_path, new_main_text)
         }
     } else {
-        inq.warning('main.js not updated')
+        if (verbose) inq.warning('main.js not updated')
     }
 
-    inq.success(`API ${api_name} generated !\n`)
+    if (verbose) inq.success(`API ${api_name} generated !\n`)
 
 }
 
 async function main() {
     try {
-        await generate()
+        await generate(...arguments)
     } catch (e) {
         inq.error(e.stack)
     }
 }
-main()
+
+if (require.main === module) {
+    main(process.argv[2], true, true)
+} else {
+    module.exports = generate
+}

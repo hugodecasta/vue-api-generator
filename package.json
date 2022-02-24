@@ -1,9 +1,12 @@
 {
   "name": "vue-api-generator",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Vue Inner API plugin generator",
   "main": "index.js",
-  "bin": "index.js",
+  "bin": {
+    "vue-api-generator": "index.js",
+    "vue-api-generator-server": "server-index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

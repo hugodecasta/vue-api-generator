@@ -17,6 +17,12 @@ A **configuration** file is required in order to give instructions on how to gen
 
 By default, the configuration file will be picked from the working directory file `configuration.json` but it is possible to specify a configuration file path using `npm vue-api-generator <config file path>`
 
+### using server generation
+
+In this mode, one can open th server in any terminal and let it run while updating the api configuration file. The server will automatically regenerate the api plugin every time the api configuration file is updated.
+
+`npm vue-api-generator-server <config file path>`
+
 ## configuration file
 
 ### Specification

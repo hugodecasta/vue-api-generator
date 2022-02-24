@@ -6,7 +6,7 @@ module.exports = function (configuration_path, verbose = false) {
     if (verbose) inq.info('serving vue-api-generator on file', configuration_path)
     async function re_generate() {
         try {
-            await generator(process.argv[2], false, verbose)
+            await generator(configuration_path, false, verbose)
         } catch (e) {
             if (verbose) inq.error(e)
         }

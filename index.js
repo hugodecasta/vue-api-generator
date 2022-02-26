@@ -54,8 +54,10 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
 
     const home_dir = process.cwd()
 
+
     // ---- configuration file
-    const configuration_path = `${home_dir}/${configuration_arg ?? 'configuration.json'}`
+    const conf_arg_is_abs = configuration_arg?.[0] == '/'
+    const configuration_path = conf_arg_is_abs ? configuration_arg : `${home_dir}/${configuration_arg ?? 'configuration.json'}`
     const configuration_file = fs.readFileSync(configuration_path)
     const configuration = JSON.parse(configuration_file)
 

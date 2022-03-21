@@ -30,6 +30,7 @@ In this mode, one can open th server in any terminal and let it run while updati
 - **name?** (*string* api name, default is `api`, optional)
 - **credentials_path?** (*string* credential json file path, optional)
 - **vue_src_directory?** (*string* vue source directory path, default is `./src`, optional)
+- **is_fake?** (*boolean* put the api generator into fake mode or not, default is `false`, optional)
 - **apis** (*object* apis config)
     - name (*string* api name, us `""` for direct access) → (*object*)
         - **host** (*string* api main host)
@@ -42,11 +43,20 @@ In this mode, one can open th server in any terminal and let it run while updati
                 - **defaults?** (*object* default values specified for each url argument, overrides the `default` value if set)
                     - arg_name (*string*) → (*string* default value)
                 - **data_needed?** (*boolean* whether a data body is needed or not, optional)
-                - **data_format?** (*string* if data is needed, specify the data foramat, default is `json`, optional)
+                - **data_format?** (*string* if data is needed, specify the data format, default is `json`, optional)
                 - **credentials?** (*object* credential to use)
                     - **header_type** (*string* see header types)
                     - **token_type** (*string* see token types)
                     - **options** (*credential options*)
+                - **fake_response** (*object* fake json response if api in fake mode, optional)
+                - **fake_code** (*object* fake status code and text if api in fake mode, optional)
+                    - **status** (*integer* status code)
+                    - **statusText** (*string* status text)
+
+### Fake Mode
+
+One can enable the fake mode api by setting the root configuration property `is_fake` to `true`.\
+In fake mode, the api will only answer using the `fake_response` present in each endpoint (or `{}` if not set).
 
 ### Credentials
 

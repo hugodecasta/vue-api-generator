@@ -119,9 +119,8 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
         const {
             name, url, method = 'GET', credentials, data_needed,
             default: def_arg, defaults = {}, data_format = 'json',
-            fake_code
+            fake_code, fake_response
         } = endpoint_config
-        const fake_response = JSON.stringify(endpoint_config.fake_response ?? (data_format != 'json' ? '' : {}))
         const args = args_from_url(url)
             .map(arg =>
                 def_arg !== undefined || arg in defaults ? `${arg} = ${JSON.stringify(defaults[arg] ?? def_arg)}` : arg)
@@ -137,7 +136,7 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
             method,
             data,
             format,
-            fake_response,
+            fake_response: JSON.stringify(fake_response ?? {}),
             fake_code: JSON.stringify(fake_code ?? { status: 200 }),
             headers: handle_credentials(credentials)
         }

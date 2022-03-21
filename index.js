@@ -62,7 +62,7 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
     const configuration = JSON.parse(configuration_file)
 
     // ---- API name
-    const { name: api_name = "api" } = configuration
+    const { name: api_name = "api", is_fake } = configuration
     const api_filename = `${api_name}.js`
 
     if (verbose) inq.info(`Generating API ${api_name}`)
@@ -116,7 +116,12 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
         return `{ "${header}": ${pre_token}${token} }`
     }
     function handle_endpoint(api_name, endpoint_config) {
-        const { name, url, method = 'GET', credentials, data_needed, default: def_arg, defaults = {}, data_format = 'json' } = endpoint_config
+        const {
+            name, url, method = 'GET', credentials, data_needed,
+            default: def_arg, defaults = {}, data_format = 'json',
+            fake_code
+        } = endpoint_config
+        const fake_response = JSON.stringify(endpoint_config.fake_response ?? (data_format != 'json' ? '' : {}))
         const args = args_from_url(url)
             .map(arg =>
                 def_arg !== undefined || arg in defaults ? `${arg} = ${JSON.stringify(defaults[arg] ?? def_arg)}` : arg)
@@ -132,9 +137,12 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
             method,
             data,
             format,
+            fake_response,
+            fake_code: JSON.stringify(fake_code ?? { status: 200 }),
             headers: handle_credentials(credentials)
         }
-        const endpoint_text = replacer(text_data, api_name ? templates.endpoint : templates.endpoint_root)
+        const template = templates[(api_name ? 'endpoint' : 'endpoint_root') + (is_fake ? '_fake' : '')]
+        const endpoint_text = replacer(text_data, template)
         return endpoint_text
     }
 

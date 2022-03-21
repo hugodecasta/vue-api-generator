@@ -11,6 +11,6 @@ async __/*----name----*/_api(endpoint, method, data, headers, data_format = 'jso
     const url = ["/*----host----*/", endpoint].join('/')
     const resp = await fetch(url, options)
     if (!resp.ok) throw new Error(`response error ${resp.status} calling ${url} "${resp.statusText}"`)
-    if (resp.headers.get('content-type') == 'application/json') return await resp.json()
+    if (resp.headers.get('content-type').includes('application/json')) return await resp.json()
     return await resp.text()
 }

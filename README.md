@@ -76,9 +76,9 @@ This options object's content depends on the credential header and token types.
  - **absolute** creates an Authorization header `{ <cred_header>: this.credentials["<options.cred_key>"] }`\
  You will have to provide a credential file path containing the specified credential key `cred_key` in the configuration file. Bear in mind that these credentials will be imprinted inside the client api thus being accessible by an client. Only client side api tokens must be delivered through the credentials file.
  - **cookie** uses the client cookie to setup the token `{ <cred_header>: this.__get_cookie("<options.cookie>") }`
- - **session** uses the client sessionStrage to setup the token `{ <cred_header>: sessionStorage("<options.cookie>") }`
- - **local** uses the client localStorage to setup the token `{ <cred_header>: localStorage("<options.cookie>") }`
- - **local_session** uses the client localStorage or sessionStorage to setup the token `{ <cred_header>: (localStorage("<options.cookie>") ?? sessionStorage("<options.cookie>")) }`
+ - **session** uses the client sessionStrage to setup the token `{ <cred_header>: sessionStorage("<options.cred_key>") }`
+ - **local** uses the client localStorage to setup the token `{ <cred_header>: localStorage("<options.cred_key>") }`
+ - **local_session** uses the client localStorage or sessionStorage to setup the token `{ <cred_header>: (localStorage("<options.cred_key>") ?? sessionStorage("<options.cookie>")) }`
 
 ### Sub Apis
 

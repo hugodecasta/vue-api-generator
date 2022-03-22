@@ -97,7 +97,7 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
 
     // ---- handlers
     function handle_credentials(credentials) {
-        if (!credentials) return 'null'
+        if (!credentials) return { text: 'null' }
         const { header_type, token_type, options } = credentials
         const args_to_add = []
         const header = {

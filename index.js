@@ -99,6 +99,7 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
     function handle_credentials(credentials) {
         if (!credentials) return 'null'
         const { header_type, token_type, options } = credentials
+        const args_to_add = []
         const header = {
             custom: () => options.header,
             Bearer: () => 'Authorization',
@@ -107,13 +108,14 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
             Bearer: () => '"Bearer " + ',
         }[header_type] ?? (() => ''))()
         const token = ({
+            argument: () => { args_to_add.push(options.argument); return options.argument },
             cookie: () => `this.__get_cookies("${options.cookie_key}")`,
             absolute: () => `this.credentials["${options.cred_key}"]`,
             session: () => `sessionStorage.getItem("${options.cred_key}")`,
             local: () => `localStorage.getItem("${options.cred_key}")`,
             local_session: () => `(localStorage.getItem("${options.cred_key}") ?? sessionStorage.getItem("${options.cred_key}"))`,
         }[token_type] ?? (() => ''))()
-        return `{ "${header}": ${pre_token}${token} }`
+        return { args_to_add, text: `{ "${header}": ${pre_token}${token} }` }
     }
     function handle_endpoint(api_name, endpoint_config) {
         const {
@@ -121,13 +123,16 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
             default: def_arg, defaults = {}, data_format = 'json',
             fake_code, fake_response
         } = endpoint_config
-        const args = args_from_url(url)
+        const args_array = args_from_url(url)
             .map(arg =>
                 def_arg !== undefined || arg in defaults ? `${arg} = ${JSON.stringify(defaults[arg] ?? def_arg)}` : arg)
-            .concat(data_needed ? ['data = null'] : []).join(', ')
+            .concat(data_needed ? ['data = null'] : [])
         const data = data_needed ? 'data' : 'null'
         const endpoint = ('"' + url.replace(/:(\w*)/g, (_, g, ender) => `" + ${g} + "`) + '"')
         const format = JSON.stringify(data_needed ? data_format : null)
+        const { args_to_add = [], text: headers } = handle_credentials(credentials)
+        args_array.unshift(...args_to_add)
+        const args = args_array.join(', ')
         const text_data = {
             api_name,
             name,
@@ -138,7 +143,7 @@ async function generate(configuration_arg, use_command_line = false, verbose = f
             format,
             fake_response: JSON.stringify(fake_response ?? {}),
             fake_code: JSON.stringify(fake_code ?? { status: 200 }),
-            headers: handle_credentials(credentials)
+            headers
         }
         const template = templates[(api_name ? 'endpoint' : 'endpoint_root') + (is_fake ? '_fake' : '')]
         const endpoint_text = replacer(text_data, template)

@@ -1,6 +1,6 @@
 {
   "name": "vue-api-generator",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Vue Inner API plugin generator",
   "main": "index.js",
   "bin": {
